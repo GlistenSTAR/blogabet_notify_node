@@ -183,7 +183,7 @@ const startXChecker = async () => {
 
       try {
         await axios.post(`https://api.telegram.org/bot${apiToken}/sendPhoto`, formData, {
-          headers: formData.getHeaders(), // Include FormData headers
+          headers: formData.getHeaders(),
         }).then(() => {
           console.log('Image and text message sent via Telegram');
         });
