@@ -36,15 +36,16 @@ const getNewEmail = async (tabId) => {
       let old_date;
       const extractUrl = () => {
         let base_xpath = "#MailList > div > div > div > div > div > div > div > div:nth-child(2) > div > div > div > div > div:nth-child(2) > div:nth-child(2)"
+        let title = document.querySelector(`${base_xpath} > div:nth-child(1)`).innerText.trim()
+        let new_date = document.querySelector(`${base_xpath} > div:nth-child(2) > span`).innerText.trim()
+        console.log(new_date)
         try {
-          let title = document.querySelector(`${base_xpath} > div:nth-child(1)`).innerText.trim()
-          let new_date = document.querySelector(`${base_xpath} > div:nth-child(2) > span`).innerText.trim()
           if (title == "Blogabet") {
             if (new_date != old_date) {
               old_date = new_date;
               const urlRegex = /(https?:\/\/[^\s]+)/g;
               let url = document.querySelector(`${base_xpath} > div:nth-child(3)`).innerText.trim().match(urlRegex)[0]
-
+              console.log(url)
               fetch('http://127.0.0.1:5000/api/blogabet', {
                 method: 'POST',
                 headers: {
@@ -63,7 +64,7 @@ const getNewEmail = async (tabId) => {
                 });
             }
           }
-        } catch (err) { }
+        } catch (err) { console.log(err) }
       }
       intervalId = setInterval(extractUrl, 1000);
     },
