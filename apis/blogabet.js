@@ -132,7 +132,7 @@ router.post("/", async (req, res) => {
   const formData = new FormData();
   formData.append('chat_id', chatId);
   formData.append('photo', screenshot, { filename: 'screenshot.png' });
-  formData.append('caption', `*${title}*\n${content1}\n\n${content2}\n\n${content3}`);
+  formData.append('caption', `${title}\n${content1}\n\n${content2}\n\n${content3}`);
 
   try {
     await axios.post(`https://api.telegram.org/bot${apiToken}/sendPhoto`, formData, {
