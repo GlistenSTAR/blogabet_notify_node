@@ -65,22 +65,25 @@ const isValidURL = (url) => {
 }
 
 dotenv.config();
+let browser, page;
 
-const startXChecker = async () => {
+(async () => {
+  browser = await browserObject.startBrowser(false);
+  page = await browser.pages();
+  page = page[0];
+  await page.setDefaultNavigationTimeout(0);
+})();
+
+const startAction = async () => {
   rl.question(
     "Enter the url (like: https://*.blogabet.com/pick/*.....): ",
     async (url) => {
       if (!url || !isValidURL(url)) {
         console.log("input url not specified");
-        await startXChecker();
+        await startAction();
         return 0
       }
 
-      let browser = await browserObject.startBrowser(false);
-      let page = await browser.pages();
-      page = page[0];
-
-      await page.setDefaultNavigationTimeout(0);
       await page.goto(url);
       await delay(200)
 
@@ -190,7 +193,9 @@ const startXChecker = async () => {
       } catch (err) {
         console.log(err)
       }
+
+      await startAction();
     })
 };
 
-startXChecker();
+startAction();
