@@ -24,6 +24,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "form-data": "^4.0.0",
     "node-capmonster": "^0.4.3",
     "puppeteer": "^22.7.0",
     "puppeteer-extra": "^3.3.6",

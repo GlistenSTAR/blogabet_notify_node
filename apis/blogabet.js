@@ -40,8 +40,9 @@ router.post("/", async (req, res) => {
   let sitekey = process.env.siteKey
   let apiToken = process.env.telegramToken;
   let chatId = process.env.telegramChatId
+
   try {
-    await page.waitForSelector('div.g-recaptcha', { timeout: 500 })
+    await page.waitForSelector('div.g-recaptcha', { timeout: 1000 })
     const client = new RecaptchaV2Task(process.env.capmonsterKey)
     const task = client.task({
       websiteKey: sitekey,
@@ -107,7 +108,7 @@ router.post("/", async (req, res) => {
       window.___grecaptcha_cfg.clients[0][rTopKey][rSubKey]['callback'](token)
 
     }, result.gRecaptchaResponse)
-  } catch (err) { console.log("there is no captcha") }
+  } catch (err) { console.log("there is no captcha", err) }
 
   await page.waitForSelector('div.feed-pick-title')
   let title = await page.$eval('div.feed-pick-title > div.no-padding > h3', h3 => h3.innerText)
