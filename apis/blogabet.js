@@ -18,7 +18,7 @@ dotenv.config();
 let browser, page;
 
 (async () => {
-  browser = await browserObject.startBrowser(false);
+  browser = await browserObject.startBrowser("new");
   page = await browser.pages();
   page = page[0];
   await page.setDefaultNavigationTimeout(0);
@@ -34,6 +34,7 @@ router.post("/", async (req, res) => {
     return 0
   }
 
+  console.time("script");
   await page.goto(url);
   await delay(200)
 
@@ -144,6 +145,8 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.log(err)
   }
+  
+  console.timeEnd("script");
   res.json(1);
 });
 

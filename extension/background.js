@@ -11,8 +11,10 @@ chrome.commands.onCommand.addListener(async (command) => {
         chrome.action.setBadgeText({ tabId: tab.id, text: "O" });
         await getNewEmail(tab.id)
       } else {
-        chrome.action.setBadgeText({ tabId: tab.id, text: "" });
-        clearInterval(intervalId)
+        try {
+          chrome.action.setBadgeText({ tabId: tab.id, text: "" });
+          clearInterval(intervalId)
+        } catch (err) { console.log(err) }
       }
     }
   })
@@ -24,8 +26,10 @@ chrome.action.onClicked.addListener(async (tab) => {
     chrome.action.setBadgeText({ tabId: tab.id, text: "O" });
     await getNewEmail(tab.id)
   } else {
-    chrome.action.setBadgeText({ tabId: tab.id, text: "" });
-    clearInterval(intervalId)
+    try {
+      chrome.action.setBadgeText({ tabId: tab.id, text: "" });
+      clearInterval(intervalId)
+    } catch (err) { console.log(err) }
   }
 });
 
