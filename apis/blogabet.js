@@ -117,35 +117,51 @@ router.post("/", async (req, res) => {
   let content2 = await page.$eval('div.sport-line', div => div.innerText)
   let content3 = await page.$eval('div.labels', div => div.innerText)
 
-  const contentBoundingBox = await page.$eval('#feed-list', element => {
-    const { x, y, width, height } = element.getBoundingClientRect();
-    return { x, y, width, height };
-  });
+  // const contentBoundingBox = await page.$eval('#feed-list', element => {
+  //   const { x, y, width, height } = element.getBoundingClientRect();
+  //   return { x, y, width, height };
+  // });
 
-  const screenshot = await page.screenshot({
-    clip: {
-      x: contentBoundingBox.x,
-      y: contentBoundingBox.y,
-      width: contentBoundingBox.width,
-      height: contentBoundingBox.height
-    }
-  });
+  // const screenshot = await page.screenshot({
+  //   clip: {
+  //     x: contentBoundingBox.x,
+  //     y: contentBoundingBox.y,
+  //     width: contentBoundingBox.width,
+  //     height: contentBoundingBox.height
+  //   }
+  // });
 
-  const formData = new FormData();
-  formData.append('chat_id', chatId);
-  formData.append('photo', screenshot, { filename: 'screenshot.png' });
-  formData.append('caption', `${title}\n${content1}\n\n${content2}\n\n${content3}`);
+  // const formData = new FormData();
+  // formData.append('chat_id', chatId);
+  // formData.append('photo', screenshot, { filename: 'screenshot.png' });
+  // formData.append('caption', `${title}\n${content1}\n\n${content2}\n\n${content3}`);
+
+  // try {
+  //   await axios.post(`https://api.telegram.org/bot${apiToken}/sendPhoto`, formData, {
+  //     headers: formData.getHeaders(),
+  //   }).then(() => {
+  //     console.log('Image and text message sent via Telegram');
+  //   });
+  // } catch (err) {
+  //   console.log(err)
+  // }
+
+  let json = {
+    chat_id: chatId,
+    parse_mode: 'html',
+    text: `${title}\n${content1}\n\n${content2}\n\n${content3}`
+  }
 
   try {
-    await axios.post(`https://api.telegram.org/bot${apiToken}/sendPhoto`, formData, {
-      headers: formData.getHeaders(),
-    }).then(() => {
-      console.log('Image and text message sent via Telegram');
-    });
+    await axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json)
+      .then(() => {
+        console.log("Telelgram message sent!")
+      })
   } catch (err) {
+    console.log("Telegram message failed!")
     console.log(err)
   }
-  
+
   console.timeEnd("script");
   res.json(1);
 });
