@@ -8,12 +8,16 @@ const FormData = require('form-data');
 const browserObject = require("./../utils/browser");
 const delay = require("./../helper/delay");
 
+const ac = require("@antiadmin/anticaptchaofficial");
+
 const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
 const isValidURL = (url) => {
   return urlPattern.test(url);
 }
 
 dotenv.config();
+
+ac.setAPIKey(process.env.anticaptchaKey);
 
 let browser, page;
 
@@ -44,16 +48,25 @@ router.post("/", async (req, res) => {
 
   try {
     await page.waitForSelector('div.g-recaptcha', { timeout: 1000 })
-    const client = new RecaptchaV2Task(process.env.capmonsterKey)
-    const task = client.task({
-      websiteKey: sitekey,
-      websiteURL: url,
-    })
 
-    console.log("solving captcha...")
-    const taskId = await client.createWithTask(task)
-    const result = await client.joinTaskResult(taskId)
-    console.log("get response:", result.gRecaptchaResponse)
+    // slve the captcha using anti-captcha
+    let token = await ac.solveRecaptchaV2Proxyless(url, sitekey);
+    if (!token) {
+      console.log('something went wrong');
+      return;
+    }
+
+    // solve the captcha using capmonster
+    // const client = new RecaptchaV2Task(process.env.capmonsterKey)
+    // const task = client.task({
+    //   websiteKey: sitekey,
+    //   websiteURL: url,
+    // })
+
+    // console.log("solving captcha...")
+    // const taskId = await client.createWithTask(task)
+    // const result = await client.joinTaskResult(taskId)
+    // console.log("get response:", result.gRecaptchaResponse)
 
     await page.evaluate(
       async (token) => {

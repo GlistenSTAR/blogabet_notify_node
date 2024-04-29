@@ -16,6 +16,7 @@
   "author": "GlistenSTAR",
   "license": "ISC",
   "dependencies": {
+    "@antiadmin/anticaptchaofficial": "^1.0.46",
     "@azure/identity": "^4.1.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "axios": "^1.6.8",
