@@ -72,7 +72,7 @@ router.post("/", async (req, res) => {
       async (token) => {
         document.getElementById("g-recaptcha-response").innerHTML = token;
       },
-      result.gRecaptchaResponse
+      token
     );
     await delay(200)
 
@@ -121,9 +121,10 @@ router.post("/", async (req, res) => {
       let rSubKey = window.callbackRes[0].subKey
       window.___grecaptcha_cfg.clients[0][rTopKey][rSubKey]['callback'](token)
 
-    }, result.gRecaptchaResponse)
+    }, token)
   } catch (err) { console.log("there is no captcha", err) }
 
+  await delay(2000)
   await page.waitForSelector('div.feed-pick-title')
   let title = await page.$eval('div.feed-pick-title > div.no-padding > h3', h3 => h3.innerText)
   let content1 = await page.$eval('div.pick-line', div => div.innerText)
