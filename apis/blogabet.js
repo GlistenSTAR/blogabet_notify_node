@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
     return 0
   }
 
-  console.time("script");
+  // console.time("script");
   await page.goto(url);
   await delay(200)
 
@@ -49,24 +49,24 @@ router.post("/", async (req, res) => {
   try {
     await page.waitForSelector('div.g-recaptcha', { timeout: 1000 })
 
-    // slve the captcha using anti-captcha
-    let token = await ac.solveRecaptchaV2Proxyless(url, sitekey);
-    if (!token) {
-      console.log('something went wrong');
-      return;
-    }
+    // // slve the captcha using anti-captcha
+    // let token = await ac.solveRecaptchaV2Proxyless(url, sitekey);
+    // if (!token) {
+    //   console.log('something went wrong');
+    //   return;
+    // }
 
     // solve the captcha using capmonster
-    // const client = new RecaptchaV2Task(process.env.capmonsterKey)
-    // const task = client.task({
-    //   websiteKey: sitekey,
-    //   websiteURL: url,
-    // })
+    const client = new RecaptchaV2Task(process.env.capmonsterKey)
+    const task = client.task({
+      websiteKey: sitekey,
+      websiteURL: url,
+    })
 
-    // console.log("solving captcha...")
-    // const taskId = await client.createWithTask(task)
-    // const result = await client.joinTaskResult(taskId)
-    // console.log("get response:", result.gRecaptchaResponse)
+    console.log("solving captcha...")
+    const taskId = await client.createWithTask(task)
+    const result = await client.joinTaskResult(taskId)
+    let token = result.gRecaptchaResponse
 
     await page.evaluate(
       async (token) => {
@@ -126,6 +126,8 @@ router.post("/", async (req, res) => {
 
   await delay(2000)
   await page.waitForSelector('div.feed-pick-title')
+  let eventName = await page.title();
+  eventName = eventName.split(" -")[0]
   let title = await page.$eval('div.feed-pick-title > div.no-padding > h3', h3 => h3.innerText)
   let content1 = await page.$eval('div.pick-line', div => div.innerText)
   let content2 = await page.$eval('div.sport-line', div => div.innerText)
@@ -163,7 +165,7 @@ router.post("/", async (req, res) => {
   let json = {
     chat_id: chatId,
     parse_mode: 'html',
-    text: `${title}\n${content1}\n\n${content2}\n\n${content3}`
+    text: `${eventName}\n\n${title}\n${content1}\n\n${content2}\n\n${content3}`
   }
 
   try {
@@ -176,7 +178,7 @@ router.post("/", async (req, res) => {
     console.log(err)
   }
 
-  console.timeEnd("script");
+  // console.timeEnd("script");
   res.json(1);
 });
 
