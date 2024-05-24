@@ -26,7 +26,26 @@ dotenv.config();
 router.get('/', (req, res) => { res.json("test") })
 
 router.post("/", async (req, res) => {
+  let sitekey = process.env.siteKey
+  let apiToken = process.env.telegramToken;
+  let chatId = process.env.telegramChatId
   let browser, page;
+  let json = {
+    chat_id: chatId,
+    parse_mode: 'html',
+    text: `${req.body.caption}`
+  }
+
+  try {
+    await axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json)
+      .then(() => {
+        console.log("Telelgram message sent!")
+      })
+  } catch (err) {
+    console.log("Telegram message failed!")
+    console.log(err)
+  }
+
   browser = await browserObject.startBrowser("new");
   page = await browser.pages();
   page = page[0];
@@ -43,9 +62,6 @@ router.post("/", async (req, res) => {
     await page.goto(url);
     await delay(200)
 
-    let sitekey = process.env.siteKey
-    let apiToken = process.env.telegramToken;
-    let chatId = process.env.telegramChatId
 
     try {
       await page.waitForSelector('div.g-recaptcha', { timeout: 1000 })
@@ -245,10 +261,26 @@ router.post("/", async (req, res) => {
     const endTime = performance.now();
 
     const runningTime = endTime - startTime;
+    let json1 = {
+      chat_id: chatId,
+      parse_mode: 'html',
+      text: `Solving captcha time: ${runningTime/1000}s`
+    }
+
+    try {
+      await axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json1)
+        .then(() => {
+          console.log("Telelgram message sent!")
+        })
+    } catch (err) {
+      console.log("Telegram message failed!")
+      console.log(err)
+    }
+
     let json = {
       chat_id: chatId,
       parse_mode: 'html',
-      text: `${eventName}\n\n${title}\n${content1}\n\n${content2}\n\n${content3}\n\n\ntime: ${runningTime/1000}s`
+      text: `${eventName}\n\n${title}\n${content1}\n\n${content2}\n\n${content3}`
     }
 
     try {
