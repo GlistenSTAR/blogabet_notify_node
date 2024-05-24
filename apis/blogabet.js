@@ -3,13 +3,10 @@ const router = express.Router();
 const dotenv = require('dotenv');
 const axios = require('axios');
 const Captcha = require("2captcha")
-// const { RecaptchaV2Task } = require("node-capmonster");
 const FormData = require('form-data');
 
 const browserObject = require("./../utils/browser");
 const delay = require("./../helper/delay");
-
-// const ac = require("@antiadmin/anticaptchaofficial");
 
 const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
 const isValidURL = (url) => {
@@ -18,8 +15,12 @@ const isValidURL = (url) => {
 
 dotenv.config();
 
+// anticaptcha
+// const ac = require("@antiadmin/anticaptchaofficial");
 // ac.setAPIKey(process.env.anticaptchaKey);
 
+// capmonster
+// const { RecaptchaV2Task } = require("node-capmonster");
 
 
 router.get('/', (req, res) => { res.json("test") })
@@ -38,7 +39,7 @@ router.post("/", async (req, res) => {
       return 0
     }
 
-    // console.time("script");
+    const startTime = performance.now();
     await page.goto(url);
     await delay(200)
 
@@ -59,6 +60,7 @@ router.post("/", async (req, res) => {
             },
             token
           );
+
           await delay(200)
           await page.evaluate((token) => {
             window.findRecaptchaClients = function () {
@@ -111,7 +113,7 @@ router.post("/", async (req, res) => {
           console.error(err.message)
         })
 
-      // // slve the captcha using anti-captcha
+      // // solve the captcha using anti-captcha
       // let token = await ac.solveRecaptchaV2Proxyless(url, sitekey);
       // if (!token) {
       //   console.log('something went wrong');
@@ -128,6 +130,61 @@ router.post("/", async (req, res) => {
       // const taskId = await client.createWithTask(task)
       // const result = await client.joinTaskResult(taskId)
 
+      // await page.evaluate(
+      //   async (token) => {
+      //     document.getElementById("g-recaptcha-response").innerHTML = token;
+      //   },
+      //   token
+      // );
+
+      // await delay(200)
+      // await page.evaluate((token) => {
+      //   window.findRecaptchaClients = function () {
+      //     if (typeof (___grecaptcha_cfg) !== 'undefined') {
+      //       return Object.entries(___grecaptcha_cfg.clients).map(([cid, client]) => {
+      //         const data = { id: cid, version: cid >= 10000 ? 'V3' : 'V2' };
+      //         const objects = Object.entries(client).filter(([_, value]) => value && typeof value === 'object');
+
+      //         objects.forEach(([toplevelKey, toplevel]) => {
+      //           const found = Object.entries(toplevel).find(([_, value]) => (
+      //             value && typeof value === 'object' && 'sitekey' in value && 'size' in value
+      //           ));
+
+      //           if (typeof toplevel === 'object' && toplevel instanceof HTMLElement && toplevel['tagName'] === 'DIV') {
+      //             data.pageurl = toplevel.baseURI;
+      //           }
+
+      //           if (found) {
+      //             const [sublevelKey, sublevel] = found;
+
+      //             data.sitekey = sublevel.sitekey;
+      //             const callbackKey = data.version === 'V2' ? 'callback' : 'promise-callback';
+      //             const callback = sublevel[callbackKey];
+      //             data.topKey = toplevelKey;
+      //             data.subKey = sublevelKey;
+      //             if (!callback) {
+      //               data.callback = null;
+      //               data.function = null;
+      //             } else {
+      //               data.function = callback;
+      //               const keys = [cid, toplevelKey, sublevelKey, callbackKey].map((key) => `['${key}']`).join('');
+      //               data.callback = `___grecaptcha_cfg.clients${keys}`;
+      //             }
+      //           }
+      //         });
+      //         return data;
+      //       });
+      //     }
+      //     return [];
+      //   }
+
+      //   window.callbackRes = findRecaptchaClients();
+      //   let rTopKey = window.callbackRes[0].topKey
+      //   let rSubKey = window.callbackRes[0].subKey
+      //   window.___grecaptcha_cfg.clients[0][rTopKey][rSubKey]['callback'](token)
+
+      // }, token)
+
     } catch (err) { console.log("there is no captcha", err) }
 
     await delay(2000)
@@ -136,6 +193,7 @@ router.post("/", async (req, res) => {
     eventName = eventName.split(" -")[0]
     let title = await page.$eval('div.feed-pick-title > div.no-padding > h3', h3 => h3.innerText)
     let content1 = '', content2 = '', content3 = '';
+
     try {
       content1 = await page.$eval('div.pick-line', div => div.innerText)
     } catch (err) { }
@@ -154,7 +212,7 @@ router.post("/", async (req, res) => {
       content3 = await page.$eval('div.labels', div => div.innerText)
     } catch (err) { }
 
-
+    // add screenshot for bet
     // const contentBoundingBox = await page.$eval('#feed-list', element => {
     //   const { x, y, width, height } = element.getBoundingClientRect();
     //   return { x, y, width, height };
@@ -184,10 +242,13 @@ router.post("/", async (req, res) => {
     //   console.log(err)
     // }
 
+    const endTime = performance.now();
+
+    const runningTime = endTime - startTime;
     let json = {
       chat_id: chatId,
       parse_mode: 'html',
-      text: `${eventName}\n\n${title}\n${content1}\n\n${content2}\n\n${content3}`
+      text: `${eventName}\n\n${title}\n${content1}\n\n${content2}\n\n${content3}\n\n\ntime: ${runningTime/1000}s`
     }
 
     try {
@@ -201,7 +262,6 @@ router.post("/", async (req, res) => {
     }
   } catch (err) { console.log("err>>>>>>", err) }
 
-  // console.timeEnd("script");
   res.json(1);
 });
 
