@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer-extra');
 
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
+// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+// puppeteer.use(StealthPlugin());
 const proxy_data = require('./proxy.json');
 const proxy_rotation = require('./proxyRotation');
 const proxyChain = require('proxy-chain');

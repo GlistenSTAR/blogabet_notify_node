@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const dotenv = require('dotenv');
 const axios = require('axios');
-const Captcha = require("2captcha")
 const FormData = require('form-data');
+
+const Captcha = require("2captcha")
 
 const browserObject = require("./../utils/browser");
 const delay = require("./../helper/delay");
@@ -29,6 +30,7 @@ router.post("/", async (req, res) => {
   let sitekey = process.env.siteKey
   let apiToken = process.env.telegramToken;
   let chatId = process.env.telegramChatId
+  let capsoverApiKey = process.env.capsoverApiKey
   let browser, page;
   let json = {
     chat_id: chatId,
@@ -46,7 +48,7 @@ router.post("/", async (req, res) => {
     console.log(err)
   }
 
-  browser = await browserObject.startBrowser("new");
+  browser = await browserObject.startBrowser(false);
   page = await browser.pages();
   page = page[0];
   await page.setDefaultNavigationTimeout(0);
@@ -65,69 +67,182 @@ router.post("/", async (req, res) => {
 
     try {
       await page.waitForSelector('div.g-recaptcha', { timeout: 1000 })
-      const solver = new Captcha.Solver(process.env.twocaptchaKey)
-      console.log("solving captcha...")
-      await solver.recaptcha(sitekey, url)
-        .then(async (res) => {
-          let token = res.data
-          await page.evaluate(
-            async (token) => {
-              document.getElementById("g-recaptcha-response").innerHTML = token;
-            },
-            token
-          );
 
-          await delay(200)
-          await page.evaluate((token) => {
-            window.findRecaptchaClients = function () {
-              if (typeof (___grecaptcha_cfg) !== 'undefined') {
-                return Object.entries(___grecaptcha_cfg.clients).map(([cid, client]) => {
-                  const data = { id: cid, version: cid >= 10000 ? 'V3' : 'V2' };
-                  const objects = Object.entries(client).filter(([_, value]) => value && typeof value === 'object');
+      console.log("solving captcha...", sitekey, url)
 
-                  objects.forEach(([toplevelKey, toplevel]) => {
-                    const found = Object.entries(toplevel).find(([_, value]) => (
-                      value && typeof value === 'object' && 'sitekey' in value && 'size' in value
-                    ));
+      // const solver = new Captcha.Solver(process.env.twocaptchaKey)
+      // let token;
+      // await solver.recaptcha(sitekey, url)
+      //   .then(async (res) => {
+      //     token = res.data
+      //     console.log(token)
+      //     await page.evaluate(
+      //       async (token) => {
+      //         document.getElementById("g-recaptcha-response").innerHTML = token;
+      //       },
+      //       token
+      //     );
 
-                    if (typeof toplevel === 'object' && toplevel instanceof HTMLElement && toplevel['tagName'] === 'DIV') {
-                      data.pageurl = toplevel.baseURI;
-                    }
+      //     await delay(200)
+      //     await page.evaluate((token) => {
+      //       window.findRecaptchaClients = function () {
+      //         if (typeof (___grecaptcha_cfg) !== 'undefined') {
+      //           return Object.entries(___grecaptcha_cfg.clients).map(([cid, client]) => {
+      //             const data = { id: cid, version: cid >= 10000 ? 'V3' : 'V2' };
+      //             const objects = Object.entries(client).filter(([_, value]) => value && typeof value === 'object');
 
-                    if (found) {
-                      const [sublevelKey, sublevel] = found;
+      //             objects.forEach(([toplevelKey, toplevel]) => {
+      //               const found = Object.entries(toplevel).find(([_, value]) => (
+      //                 value && typeof value === 'object' && 'sitekey' in value && 'size' in value
+      //               ));
 
-                      data.sitekey = sublevel.sitekey;
-                      const callbackKey = data.version === 'V2' ? 'callback' : 'promise-callback';
-                      const callback = sublevel[callbackKey];
-                      data.topKey = toplevelKey;
-                      data.subKey = sublevelKey;
-                      if (!callback) {
-                        data.callback = null;
-                        data.function = null;
-                      } else {
-                        data.function = callback;
-                        const keys = [cid, toplevelKey, sublevelKey, callbackKey].map((key) => `['${key}']`).join('');
-                        data.callback = `___grecaptcha_cfg.clients${keys}`;
-                      }
-                    }
-                  });
-                  return data;
-                });
-              }
-              return [];
+      //               if (typeof toplevel === 'object' && toplevel instanceof HTMLElement && toplevel['tagName'] === 'DIV') {
+      //                 data.pageurl = toplevel.baseURI;
+      //               }
+
+      //               if (found) {
+      //                 const [sublevelKey, sublevel] = found;
+
+      //                 data.sitekey = sublevel.sitekey;
+      //                 const callbackKey = data.version === 'V2' ? 'callback' : 'promise-callback';
+      //                 const callback = sublevel[callbackKey];
+      //                 data.topKey = toplevelKey;
+      //                 data.subKey = sublevelKey;
+      //                 if (!callback) {
+      //                   data.callback = null;
+      //                   data.function = null;
+      //                 } else {
+      //                   data.function = callback;
+      //                   const keys = [cid, toplevelKey, sublevelKey, callbackKey].map((key) => `['${key}']`).join('');
+      //                   data.callback = `___grecaptcha_cfg.clients${keys}`;
+      //                 }
+      //               }
+      //             });
+      //             return data;
+      //           });
+      //         }
+      //         return [];
+      //       }
+
+      //       window.callbackRes = findRecaptchaClients();
+      //       let rTopKey = window.callbackRes[0].topKey
+      //       let rSubKey = window.callbackRes[0].subKey
+      //       window.___grecaptcha_cfg.clients[0][rTopKey][rSubKey]['callback'](token)
+
+      //     }, token)
+      //   })
+      //   .catch((err) => {
+      //     console.error(err.message)
+      //   })
+
+      // capsolver
+
+      async function createTask() {
+        try {
+          const response = await axios.post('https://api.capsolver.com/createTask', {
+            clientKey: capsoverApiKey,
+            task: {
+              type: 'NoCaptchaTaskProxyless',
+              websiteURL: url,
+              websiteKey: sitekey
+            }
+          });
+
+          if (response.data.errorId !== 0) {
+            throw new Error(`Error: ${response.data.errorDescription}`);
+          }
+
+          return response.data.taskId;
+        } catch (error) {
+          console.error(`Failed to create task: ${error.message}`);
+          process.exit(1);
+        }
+      }
+
+      async function getTaskResult(taskId) {
+        while (true) {
+          try {
+            const response = await axios.post('https://api.capsolver.com/getTaskResult', {
+              clientKey: capsoverApiKey,
+              taskId: taskId
+            });
+
+            if (response.data.errorId !== 0) {
+              throw new Error(`Error: ${response.data.errorDescription}`);
             }
 
-            window.callbackRes = findRecaptchaClients();
-            let rTopKey = window.callbackRes[0].topKey
-            let rSubKey = window.callbackRes[0].subKey
-            window.___grecaptcha_cfg.clients[0][rTopKey][rSubKey]['callback'](token)
+            if (response.data.status === 'ready') {
+              return response.data.solution.gRecaptchaResponse;
+            }
+          } catch (error) {
+            console.error(`Error getting task result: ${error.message}`);
+          }
 
-          }, token)
-        })
-        .catch((err) => {
-          console.error(err.message)
-        })
+          // Wait for 5 seconds before checking again
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      }
+
+      const taskId = await createTask();
+      console.log(`Task ID: ${taskId}`);
+
+      const token = await getTaskResult(taskId);
+
+      await page.evaluate(
+        async (token) => {
+          document.getElementById("g-recaptcha-response").innerHTML = token;
+        },
+        token
+      );
+
+      await delay(200)
+      await page.evaluate((token) => {
+        window.findRecaptchaClients = function () {
+          if (typeof (___grecaptcha_cfg) !== 'undefined') {
+            return Object.entries(___grecaptcha_cfg.clients).map(([cid, client]) => {
+              const data = { id: cid, version: cid >= 10000 ? 'V3' : 'V2' };
+              const objects = Object.entries(client).filter(([_, value]) => value && typeof value === 'object');
+
+              objects.forEach(([toplevelKey, toplevel]) => {
+                const found = Object.entries(toplevel).find(([_, value]) => (
+                  value && typeof value === 'object' && 'sitekey' in value && 'size' in value
+                ));
+
+                if (typeof toplevel === 'object' && toplevel instanceof HTMLElement && toplevel['tagName'] === 'DIV') {
+                  data.pageurl = toplevel.baseURI;
+                }
+
+                if (found) {
+                  const [sublevelKey, sublevel] = found;
+
+                  data.sitekey = sublevel.sitekey;
+                  const callbackKey = data.version === 'V2' ? 'callback' : 'promise-callback';
+                  const callback = sublevel[callbackKey];
+                  data.topKey = toplevelKey;
+                  data.subKey = sublevelKey;
+                  if (!callback) {
+                    data.callback = null;
+                    data.function = null;
+                  } else {
+                    data.function = callback;
+                    const keys = [cid, toplevelKey, sublevelKey, callbackKey].map((key) => `['${key}']`).join('');
+                    data.callback = `___grecaptcha_cfg.clients${keys}`;
+                  }
+                }
+              });
+              return data;
+            });
+          }
+          return [];
+        }
+
+        window.callbackRes = findRecaptchaClients();
+        let rTopKey = window.callbackRes[0].topKey
+        let rSubKey = window.callbackRes[0].subKey
+        window.___grecaptcha_cfg.clients[0][rTopKey][rSubKey]['callback'](token)
+
+      }, token)
+
 
       // // solve the captcha using anti-captcha
       // let token = await ac.solveRecaptchaV2Proxyless(url, sitekey);
@@ -145,6 +260,7 @@ router.post("/", async (req, res) => {
 
       // const taskId = await client.createWithTask(task)
       // const result = await client.joinTaskResult(taskId)
+      // let token = result.gRecaptchaResponse;
 
       // await page.evaluate(
       //   async (token) => {
@@ -228,6 +344,8 @@ router.post("/", async (req, res) => {
       content3 = await page.$eval('div.labels', div => div.innerText)
     } catch (err) { }
 
+    browser.close()
+
     // add screenshot for bet
     // const contentBoundingBox = await page.$eval('#feed-list', element => {
     //   const { x, y, width, height } = element.getBoundingClientRect();
@@ -264,7 +382,7 @@ router.post("/", async (req, res) => {
     let json1 = {
       chat_id: chatId,
       parse_mode: 'html',
-      text: `Solving captcha time: ${runningTime/1000}s`
+      text: `Solving captcha time: ${runningTime / 1000}s`
     }
 
     try {
