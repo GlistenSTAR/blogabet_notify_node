@@ -37,15 +37,16 @@ router.post("/", async (req, res) => {
     parse_mode: 'html',
     text: `${req.body.caption}`
   }
-
-  try {
-    await axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json)
-      .then(() => {
-        console.log("Telelgram message sent!")
-      })
-  } catch (err) {
-    console.log("Telegram message failed!")
-    console.log(err)
+  if (!req.body.caption.startsWith("FREE")) {
+    try {
+      await axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json)
+        .then(() => {
+          console.log("Telelgram message sent!")
+        })
+    } catch (err) {
+      console.log("Telegram message failed!")
+      console.log(err)
+    }
   }
 
   browser = await browserObject.startBrowser(false);
@@ -54,6 +55,7 @@ router.post("/", async (req, res) => {
   await page.setDefaultNavigationTimeout(0);
   try {
     let url = req.body.url
+    console.log(url)
     if (!url || !isValidURL(url)) {
       console.log("input url not specified");
       await startAction();
@@ -135,8 +137,8 @@ router.post("/", async (req, res) => {
       //     console.error(err.message)
       //   })
 
-      // capsolver
 
+      // solve captcah using capsolver
       async function createTask() {
         try {
           const response = await axios.post('https://api.capsolver.com/createTask', {
