@@ -10,7 +10,7 @@ const delay = require('../helper/delay');
 const startBrowser = async (headless = 'new', proxy) => {
   let browser;
   try {
-    console.log('Opening the browser......');
+    console.log(`Opening the browser on ${proxy}......`);
     const [host, port] = proxy.split(':');
     const originalUrl = `http://EbRCJFtt:MbsZ2tmF@${host}:${port}`;
     const newUrl = await proxyChain.anonymizeProxy(originalUrl);

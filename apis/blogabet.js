@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
     }
   }
 
-  console.log(req.body.proxy);
+  // console.log(req.body.proxy);
 
   browser = await browserObject.startBrowser(false, req.body.proxy);
   page = await browser.pages();
