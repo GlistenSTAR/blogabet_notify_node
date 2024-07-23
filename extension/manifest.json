@@ -4,20 +4,11 @@
   "manifest_version": 3,
   "description": "Detect new email and send to local server",
   "action": {},
-  "permissions": [
-    "storage",
-    "tabs",
-    "activeTab",
-    "notifications",
-    "scripting"
-  ],
+  "permissions": ["storage", "tabs", "activeTab", "notifications", "scripting"],
   "background": {
     "service_worker": "background.js"
   },
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "icons": {
     "32": "icon.png",
     "128": "icon.png"
@@ -30,5 +21,6 @@
       },
       "description": "Open extension"
     }
-  }
+  },
+  "options_page": "options.html"
 }
