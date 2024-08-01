@@ -2,7 +2,7 @@ document.getElementById('saveButton').addEventListener('click', () => {
   const proxy = document.getElementById('proxy').value;
 
   chrome.storage.sync.set({ proxy }, () => {
-    alert('Proxy saved.');
+    alert('Profile ID saved.');
   });
 });
 
