@@ -429,7 +429,8 @@ router.post('/', async (req, res) => {
                   'div.sport-line',
                   (div) => div.innerText
                 );
-                content2 = content2.split(':')[0];
+                content2 = content2.split(':')[0].replace('/ Kick off', '');
+                eventName = eventName + ' for ' + content2;
               } catch (err) {
                 try {
                   let trs = await page.$$(
