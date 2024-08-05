@@ -63,6 +63,7 @@ router.post('/', async (req, res) => {
   console.log(req.body.proxy);
 
   const ADSPower_API_BASE_URL = 'http://local.adspower.net:50325';
+  // const ADSPower_PROFILE_ID = 'kkruhsc';
 
   try {
     axios
@@ -428,6 +429,7 @@ router.post('/', async (req, res) => {
                   'div.sport-line',
                   (div) => div.innerText
                 );
+                content2 = content2.split(':')[0];
               } catch (err) {
                 try {
                   let trs = await page.$$(
@@ -507,7 +509,7 @@ router.post('/', async (req, res) => {
               let json = {
                 chat_id: chatId,
                 parse_mode: 'html',
-                text: `${eventName}\n\n${title}\n${content1}\n\n${content2}\n\n${content3}`,
+                text: `${eventName}\n${title}\n${content1}\n${content2}\n${content3}`,
               };
 
               try {
