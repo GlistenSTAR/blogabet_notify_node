@@ -430,7 +430,7 @@ router.post('/', async (req, res) => {
                   (div) => div.innerText
                 );
                 content2 = content2.split(':')[0].replace('/ Kick off', '');
-                eventName = eventName + ' for ' + content2;
+                eventName = eventName + ' for' + content2;
               } catch (err) {
                 try {
                   let trs = await page.$$(
@@ -441,7 +441,7 @@ router.post('/', async (req, res) => {
                       `table.table.combo-table > tbody > tr:nth-child(${i})`,
                       (div) => div.innerText.trim().replace(/\s{2,}/g, ' ')
                     );
-                    content2 = content2 + '\n\n';
+                    content2 = content2 + '\n';
                   }
                 } catch (err) {}
               }
@@ -450,6 +450,11 @@ router.post('/', async (req, res) => {
                   'div.labels',
                   (div) => div.innerText
                 );
+                content3 = content3.replace('LIVE Bet365 i', 'Bet365');
+                content3 = content3.replace('Bet365 i', 'Bet365');
+                content3 = content3.replace(' i', '');
+                console.log(content3);
+                content3 = content3.replace(' ', '\n');
               } catch (err) {}
 
               page.close();
@@ -510,7 +515,7 @@ router.post('/', async (req, res) => {
               let json = {
                 chat_id: chatId,
                 parse_mode: 'html',
-                text: `${eventName}\n${title}\n${content1}\n${content2}\n${content3}`,
+                text: `${eventName}\n${title}\n${content1}\n${content3}`,
               };
 
               try {
