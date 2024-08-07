@@ -103,6 +103,7 @@ router.post('/', async (req, res) => {
                   (h4) => h4.innerText
                 );
                 if (bot_content.startsWith('Anti-bot protection!')) {
+                  console.log("Captcha box is deteted!!!!")
                   try {
                     await page.waitForSelector('div.g-recaptcha', {
                       timeout: 1000,
@@ -431,6 +432,7 @@ router.post('/', async (req, res) => {
                 );
                 content2 = content2.split(':')[0].replace('/ Kick off', '');
                 eventName = eventName + ' for' + content2;
+                content2 = ""
               } catch (err) {
                 try {
                   let trs = await page.$$(
@@ -515,7 +517,7 @@ router.post('/', async (req, res) => {
               let json = {
                 chat_id: chatId,
                 parse_mode: 'html',
-                text: `${eventName}\n${title}\n${content1}\n${content3}`,
+                text: `${eventName}\n${title}\n${content1}\n${content2}${content3}`,
               };
 
               try {
@@ -534,7 +536,7 @@ router.post('/', async (req, res) => {
             } catch (err) {
               console.log('err>>>>>>', err);
               console.log('broswer is not working, check proxy server');
-              broswer.close();
+              page.close();
             }
           } catch (err) {
             console.log(err.message);
