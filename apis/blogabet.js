@@ -66,7 +66,7 @@ router.post('/', async (req, res) => {
   // const ADSPower_PROFILE_ID = 'kkruhsc';
 
   try {
-    axios
+    await axios
       .get(
         `${ADSPower_API_BASE_URL}/api/v1/browser/start?user_id=${req.body.proxy}`
       )
@@ -83,7 +83,7 @@ router.post('/', async (req, res) => {
               defaultViewport: null,
             });
             page = await browser.newPage();
-            await page.setDefaultNavigationTimeout(0);
+            page.setDefaultNavigationTimeout(0);
             try {
               let url = req.body.url;
               console.log(url);
@@ -459,7 +459,7 @@ router.post('/', async (req, res) => {
                 content3 = content3.replace(' ', '\n');
               } catch (err) {}
 
-              page.close();
+              await page.close();
 
               // add screenshot for bet
               // const contentBoundingBox = await page.$eval('#feed-list', element => {
@@ -520,7 +520,11 @@ router.post('/', async (req, res) => {
                 text: `${eventName}\n${title}\n${content1}\n${content2}${content3}`,
               };
 
+              let randomSec = Math.floor(Math.random() * 61);
+              console.log(randomSec, typeof randomSec)
+
               try {
+                await delay(randomSec*1000)
                 await axios
                   .post(
                     `https://api.telegram.org/bot${apiToken}/sendMessage`,
