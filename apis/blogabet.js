@@ -65,6 +65,8 @@ router.post('/', async (req, res) => {
   const ADSPower_API_BASE_URL = 'http://local.adspower.net:50325';
   // const ADSPower_PROFILE_ID = 'kkruhsc';
 
+  let random1 = Math.floor(Math.random() * 61)*1000;
+  await delay(random1)
   try {
     await axios
       .get(
@@ -459,8 +461,6 @@ router.post('/', async (req, res) => {
                 content3 = content3.replace(' ', '\n');
               } catch (err) {}
 
-              await page.close();
-
               // add screenshot for bet
               // const contentBoundingBox = await page.$eval('#feed-list', element => {
               //   const { x, y, width, height } = element.getBoundingClientRect();
@@ -520,11 +520,10 @@ router.post('/', async (req, res) => {
                 text: `${eventName}\n${title}\n${content1}\n${content2}${content3}`,
               };
 
-              let randomSec = Math.floor(Math.random() * 61);
-              console.log(randomSec, typeof randomSec)
+              let random2 = Math.floor(Math.random() * 61)*1000;
 
               try {
-                await delay(randomSec*1000)
+                await delay(random2)
                 await axios
                   .post(
                     `https://api.telegram.org/bot${apiToken}/sendMessage`,
@@ -537,6 +536,11 @@ router.post('/', async (req, res) => {
                 console.log('Telegram message failed!');
                 console.log(err);
               }
+
+              let random3 = Math.floor(Math.random() * 61)*1000;
+              await delay(random3)
+
+              await page.close();
             } catch (err) {
               console.log('err>>>>>>', err);
               console.log('broswer is not working, check proxy server');
