@@ -69,7 +69,7 @@ const getNewEmail = async (tabId) => {
         } catch (err) {}
         console.log(new_date);
         try {
-          if (title == 'Blogabet' || title =='Ferhat Ücöz') {
+          if (title == 'Blogabet' || title == 'Ferhat Ücöz') {
             if (url != old_url) {
               old_url = url;
               caption = document

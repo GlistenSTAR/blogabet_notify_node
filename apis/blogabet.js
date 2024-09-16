@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
   let sitekey = process.env.siteKey;
   let apiToken = process.env.telegramToken;
   let chatId = process.env.telegramChatId;
-  let capsoverApiKey = process.env.capsoverApiKey;
+  let capSolverApiKey = process.env.capSolverApiKey;
   let browser, page;
   let json = {
     chat_id: chatId,
@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
         await axios
           .post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json)
           .then(() => {
-            console.log('Telelgram message sent!');
+            console.log('Telegram message sent!');
           });
       } catch (err) {
         console.log('Telegram message failed!');
@@ -65,8 +65,10 @@ router.post('/', async (req, res) => {
   const ADSPower_API_BASE_URL = 'http://local.adspower.net:50325';
   // const ADSPower_PROFILE_ID = 'kkruhsc';
 
-  let random1 = Math.floor(Math.random() * 61)*1000;
-  await delay(random1)
+  let random1 = Math.floor(Math.random() * 61) * 1000;
+  console.log('random1', random1 / 1000, 's');
+  await delay(random1);
+
   try {
     await axios
       .get(
@@ -105,13 +107,13 @@ router.post('/', async (req, res) => {
                   (h4) => h4.innerText
                 );
                 if (bot_content.startsWith('Anti-bot protection!')) {
-                  console.log("Captcha box is deteted!!!!")
+                  console.log('Captcha box is detected!!!!');
                   try {
                     await page.waitForSelector('div.g-recaptcha', {
                       timeout: 1000,
                     });
                   } catch (err) {
-                    console.log('reload the broswer.');
+                    console.log('reload the browser.');
                     await page.reload(url);
                     await delay(3000);
                     await page.waitForSelector('div.g-recaptcha', {
@@ -190,7 +192,7 @@ router.post('/', async (req, res) => {
                 //     console.error(err.message)
                 //   })
 
-                // solve captcah using capsolver
+                // solve captcha using capSolver
                 async function createTask() {
                   try {
                     const response = await axios.post(
@@ -224,7 +226,7 @@ router.post('/', async (req, res) => {
                       const response = await axios.post(
                         'https://api.capsolver.com/getTaskResult',
                         {
-                          clientKey: capsoverApiKey,
+                          clientKey: capSolverApiKey,
                           taskId: taskId,
                         }
                       );
@@ -434,7 +436,7 @@ router.post('/', async (req, res) => {
                 );
                 content2 = content2.split(':')[0].replace('/ Kick off', '');
                 eventName = eventName + ' for' + content2;
-                content2 = ""
+                content2 = '';
               } catch (err) {
                 try {
                   let trs = await page.$$(
@@ -520,10 +522,7 @@ router.post('/', async (req, res) => {
                 text: `${eventName}\n${title}\n${content1}\n${content2}${content3}`,
               };
 
-              let random2 = Math.floor(Math.random() * 61)*1000;
-
               try {
-                await delay(random2)
                 await axios
                   .post(
                     `https://api.telegram.org/bot${apiToken}/sendMessage`,
@@ -537,13 +536,15 @@ router.post('/', async (req, res) => {
                 console.log(err);
               }
 
-              let random3 = Math.floor(Math.random() * 61)*1000;
-              await delay(random3)
+              let random3 =
+                (Math.floor(Math.random() * (35 - 10 + 1)) + 10) * 1000;
+              console.log('random3', random3 / 1000, 's');
+              await delay(random3);
 
               await page.close();
             } catch (err) {
               console.log('err>>>>>>', err);
-              console.log('broswer is not working, check proxy server');
+              console.log('browser is not working, check proxy server');
               page.close();
             }
           } catch (err) {
