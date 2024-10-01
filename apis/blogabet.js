@@ -65,7 +65,8 @@ router.post('/', async (req, res) => {
   const ADSPower_API_BASE_URL = 'http://local.adspower.net:50325';
   // const ADSPower_PROFILE_ID = 'kkruhsc';
 
-  let random1 = Math.floor(Math.random() * 61) * 1000;
+  let random1 =
+    (Math.floor(Math.random() * (35 - 10 + 1)) + 10) * 1000;
   console.log('random1', random1 / 1000, 's');
   await delay(random1);
 
@@ -198,7 +199,7 @@ router.post('/', async (req, res) => {
                     const response = await axios.post(
                       'https://api.capsolver.com/createTask',
                       {
-                        clientKey: capsoverApiKey,
+                        clientKey: capSolverApiKey,
                         task: {
                           type: 'NoCaptchaTaskProxyless',
                           websiteURL: url,
@@ -428,7 +429,7 @@ router.post('/', async (req, res) => {
                   'div.pick-line',
                   (div) => div.innerText
                 );
-              } catch (err) {}
+              } catch (err) { }
               try {
                 content2 = await page.$eval(
                   'div.sport-line',
@@ -449,7 +450,7 @@ router.post('/', async (req, res) => {
                     );
                     content2 = content2 + '\n';
                   }
-                } catch (err) {}
+                } catch (err) { }
               }
               try {
                 content3 = await page.$eval(
@@ -461,7 +462,7 @@ router.post('/', async (req, res) => {
                 content3 = content3.replace(' i', '');
                 console.log(content3);
                 content3 = content3.replace(' ', '\n');
-              } catch (err) {}
+              } catch (err) { }
 
               // add screenshot for bet
               // const contentBoundingBox = await page.$eval('#feed-list', element => {
@@ -536,8 +537,7 @@ router.post('/', async (req, res) => {
                 console.log(err);
               }
 
-              let random3 =
-                (Math.floor(Math.random() * (35 - 10 + 1)) + 10) * 1000;
+              let random3 = (Math.floor(Math.random() * (60 - 45 + 1)) + 45) * 1000;
               console.log('random3', random3 / 1000, 's');
               await delay(random3);
 
