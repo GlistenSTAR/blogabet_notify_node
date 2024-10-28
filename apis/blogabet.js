@@ -39,24 +39,22 @@ router.post('/', async (req, res) => {
     parse_mode: 'html',
     text: `${req.body.caption}`,
   };
-  if (!req.body.caption.startsWith('FREE')) {
-    if (
-      req.body.caption.startsWith('New pick') ||
-      req.body.caption.startsWith('LIVE pick') ||
-      req.body.caption.startsWith('New Asian Odds pick') ||
-      req.body.caption.startsWith('LIVE Asian Odds pick') ||
-      req.body.caption.startsWith('New Combo pick')
-    ) {
-      try {
-        await axios
-          .post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json)
-          .then(() => {
-            console.log('Telegram message sent!');
-          });
-      } catch (err) {
-        console.log('Telegram message failed!');
-        console.log(err);
-      }
+  if (
+    req.body.caption.startsWith('New pick') ||
+    req.body.caption.startsWith('LIVE pick') ||
+    req.body.caption.startsWith('New Asian Odds pick') ||
+    req.body.caption.startsWith('LIVE Asian Odds pick') ||
+    req.body.caption.startsWith('New Combo pick')
+  ) {
+    try {
+      await axios
+        .post(`https://api.telegram.org/bot${apiToken}/sendMessage`, json)
+        .then(() => {
+          console.log('Telegram message sent!');
+        });
+    } catch (err) {
+      console.log('Telegram message failed!');
+      console.log(err);
     }
   }
 
@@ -66,7 +64,7 @@ router.post('/', async (req, res) => {
   // const ADSPower_PROFILE_ID = 'kkruhsc';
 
   let random1 =
-    (Math.floor(Math.random() * (35 - 10 + 1)) + 10) * 1000;
+    (Math.floor(Math.random() * (15 - 2 + 1)) + 2) * 1000;
   console.log('random1', random1 / 1000, 's');
   await delay(random1);
 
