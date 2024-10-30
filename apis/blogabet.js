@@ -40,11 +40,11 @@ router.post('/', async (req, res) => {
     text: `${req.body.caption}`,
   };
   if (
-    req.body.caption.startsWith('New pick') ||
-    req.body.caption.startsWith('LIVE pick') ||
-    req.body.caption.startsWith('New Asian Odds pick') ||
-    req.body.caption.startsWith('LIVE Asian Odds pick') ||
-    req.body.caption.startsWith('New Combo pick')
+    req.body.caption.toLowerCase().startsWith('new pick') ||
+    req.body.caption.toLowerCase().startsWith('live pick') ||
+    req.body.caption.toLowerCase().startsWith('new asian odds pick') ||
+    req.body.caption.toLowerCase().startsWith('live asian odds pick') ||
+    req.body.caption.toLowerCase().startsWith('new combo pick')
   ) {
     try {
       await axios
@@ -63,8 +63,7 @@ router.post('/', async (req, res) => {
   const ADSPower_API_BASE_URL = 'http://local.adspower.net:50325';
   // const ADSPower_PROFILE_ID = 'kkruhsc';
 
-  let random1 =
-    (Math.floor(Math.random() * (15 - 2 + 1)) + 2) * 1000;
+  let random1 = (Math.floor(Math.random() * (15 - 2 + 1)) + 2) * 1000;
   console.log('random1', random1 / 1000, 's');
   await delay(random1);
 
@@ -427,7 +426,7 @@ router.post('/', async (req, res) => {
                   'div.pick-line',
                   (div) => div.innerText
                 );
-              } catch (err) { }
+              } catch (err) {}
               try {
                 content2 = await page.$eval(
                   'div.sport-line',
@@ -448,7 +447,7 @@ router.post('/', async (req, res) => {
                     );
                     content2 = content2 + '\n';
                   }
-                } catch (err) { }
+                } catch (err) {}
               }
               try {
                 content3 = await page.$eval(
@@ -460,7 +459,7 @@ router.post('/', async (req, res) => {
                 content3 = content3.replace(' i', '');
                 console.log(content3);
                 content3 = content3.replace(' ', '\n');
-              } catch (err) { }
+              } catch (err) {}
 
               // add screenshot for bet
               // const contentBoundingBox = await page.$eval('#feed-list', element => {
@@ -535,7 +534,8 @@ router.post('/', async (req, res) => {
                 console.log(err);
               }
 
-              let random3 = (Math.floor(Math.random() * (60 - 45 + 1)) + 45) * 1000;
+              let random3 =
+                (Math.floor(Math.random() * (60 - 45 + 1)) + 45) * 1000;
               console.log('random3', random3 / 1000, 's');
               await delay(random3);
 
