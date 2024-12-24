@@ -6,7 +6,7 @@
   "action": {},
   "permissions": ["storage", "tabs", "activeTab", "notifications", "scripting"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background_gmail.js"
   },
   "host_permissions": ["http://*/*", "https://*/*"],
   "icons": {
