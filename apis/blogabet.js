@@ -44,7 +44,8 @@ router.post('/', async (req, res) => {
     req.body.caption.toLowerCase().startsWith('live pick') ||
     req.body.caption.toLowerCase().startsWith('new asian odds pick') ||
     req.body.caption.toLowerCase().startsWith('live asian odds pick') ||
-    req.body.caption.toLowerCase().startsWith('new combo pick')
+    req.body.caption.toLowerCase().startsWith('free live') ||
+    req.body.caption.toLowerCase().startsWith('new combo pick')    
   ) {
     try {
       await axios
@@ -91,7 +92,6 @@ router.post('/', async (req, res) => {
               console.log(url);
               if (!url || !isValidURL(url)) {
                 console.log('input url not specified');
-                await startAction();
                 return 0;
               }
 

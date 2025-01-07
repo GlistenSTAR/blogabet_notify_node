@@ -72,7 +72,7 @@ const getNewEmail = async (tabId) => {
               .querySelector(`${base_xpath} > div:nth-child(3)`)
               .innerText.trim()
               .match(urlRegex)[0];
-          } catch (err) {}
+          } catch (err) { }
           console.log(new_date);
           try {
             if (title == 'Blogabet' || title == 'Ferhat Ücöz') {
@@ -132,7 +132,7 @@ const getNewEmail = async (tabId) => {
               .querySelector(`${base_xpath} > div:nth-child(3)`)
               .innerText.trim()
               .match(urlRegex)[0];
-          } catch (err) {}
+          } catch (err) { }
           console.log(new_date);
           try {
             if (title == 'Blogabet' || title == 'Ferhat Ücöz') {

@@ -45,17 +45,17 @@ const getNewEmail = async (tabId) => {
     target: { tabId: tabId },
     function: (intervalId) => {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
-      let old_date,
-        old_caption = '',
-        old_url = '',
+      const delay = (milliseconds) => {
+        return new Promise((resolve) => setTimeout(resolve, milliseconds));
+      }
+
+      let old_url = '',
         url,
         base_xpath,
         title,
         new_date,
+        old_date,
         caption;
-      function delay(milliseconds) {
-        return new Promise((resolve) => setTimeout(resolve, milliseconds));
-      }
 
       const extractUrl = async () => {
         const emailElements = document.querySelectorAll('.zA');
@@ -63,80 +63,84 @@ const getNewEmail = async (tabId) => {
         const email = emailElements[0];
         const fieldTd = email.querySelector('td:nth-child(5) span');
         const captionTd = email.querySelector('td:nth-child(6) .y6 span');
+        new_date = email.querySelector('td:nth-child(9) span').innerText.trim();
+        console.log(new_date)
+        if (new_date != old_date) {
 
-        if (fieldTd && fieldTd.innerText.includes('Blogabet') && captionTd) {
-          email.click();
-          await delay(1000);
+          if (fieldTd && (fieldTd.innerText.includes('Blogabet') || fieldTd.innerText.includes('Glisten STAR')) && captionTd) {
+            email.click();
+            await delay(1000);
 
-          try {
-            const emailLinkButton = Array.from(
-              document.querySelectorAll('a')
-            ).find((el) => el.textContent.includes('View pick'));
+            try {
+              const emailLinkButton = Array.from(
+                document.querySelectorAll('a')
+              ).find((el) => el.textContent.includes('View pick'));
 
-            var url = '';
-            if (emailLinkButton) {
-              url = emailLinkButton.getAttribute('href');
-            } else {
-              console.log('No element containing the keyword was found.');
+              var url = '';
+              if (emailLinkButton) {
+                url = emailLinkButton.getAttribute('href');
+              } else {
+                console.log('No element containing the keyword was found.');
+              }
+            } catch (error) {
+              console.error('Failed to extract email content:', error);
             }
-          } catch (error) {
-            console.error('Failed to extract email content:', error);
+
+            const backButton = document.querySelector(
+              "[aria-label='Back to Inbox']"
+            );
+            if (backButton) backButton.click();
           }
 
-          const backButton = document.querySelector(
-            "[aria-label='Back to Inbox']"
-          );
-          if (backButton) backButton.click();
-        }
 
-        new_date = email.querySelector('td:nth-child(9) span').innerText.trim();
+          try {
+            url = url.match(urlRegex)[0];
+          } catch (err) { }
 
-        try {
-          url = url.match(urlRegex)[0];
-        } catch (err) {}
+          title = fieldTd.innerText;
+          caption = captionTd.innerText;
 
-        title = fieldTd.innerText;
-        caption = captionTd.innerText;
+          console.log(new_date, url, title, caption);
 
-        console.log(new_date, url, title, caption);
+          try {
+            if (title == 'Blogabet' || title == 'Ferhat Ücöz' || title == 'Glisten STAR') {
+              if (url != old_url) {
+                old_date = new_date
+                old_url = url;
 
-        try {
-          if (title == 'Blogabet' || title == 'Ferhat Ücöz') {
-            if (url != old_url) {
-              old_url = url;
-
-              console.log(url);
-              chrome.storage.sync.get(['proxy'], (items) => {
-                console.log({
-                  url: url,
-                  caption: caption,
-                  proxy: items.proxy,
-                });
-                fetch('http://127.0.0.1:5000/api/blogabet', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
+                console.log(url);
+                chrome.storage.sync.get(['proxy'], (items) => {
+                  console.log({
                     url: url,
                     caption: caption,
                     proxy: items.proxy,
-                  }),
-                })
-                  .then((response) => response.json())
-                  .then((data) => {
-                    console.log('send api', data);
-                  })
-                  .catch((error) => {
-                    console.error('Error making Fetch POST request:', error);
                   });
-              });
+                  fetch('http://127.0.0.1:5000/api/blogabet', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      url: url,
+                      caption: caption,
+                      proxy: items.proxy,
+                    }),
+                  })
+                    .then((response) => response.json())
+                    .then((data) => {
+                      console.log('send api', data);
+                    })
+                    .catch((error) => {
+                      console.error('Error making Fetch POST request:', error);
+                    });
+                });
+              }
             }
+          } catch (err) {
+            console.log(err);
           }
-        } catch (err) {
-          console.log(err);
-        }
-      };
+        };
+      }
 
       intervalId = setInterval(extractUrl, 1000);
     },
